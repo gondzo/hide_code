@@ -88,27 +88,7 @@ function ($, celltoolbar){
 		    {
 		     'label' : 'Hide/show code',
 		     'icon' : 'fa-code',
-		     'callback' : function() { // toggling visibility is adding display: block to the element. Causing celltoolbar = None not work.
-		        $('.input').toggle(); 
-		        $('.prompt').toggle(); 
-		        var ctb = $('.ctb_hideshow');
-		        if(ctb.hasClass('ctb_show')) {
-		        	ctb.removeClass('ctb_show');
-		        } else {
-		        	ctb.addClass('ctb_show');
-		        }
-
-		        var ctb = $('.celltoolbar');
-		        if(ctb.hasClass('invisible')){
-		        	console.log('visible');
-		        	ctb.removeClass('invisible');
-		        } else {
-		        	console.log('invisible');
-		        	ctb.addClass('invisible');
-		        }
-		        // $('.celltoolbar').toggle();
-		        $('.selected').removeClass('selected').addClass('unselected');
-		      } 
+		     'callback' : toggleCodeFunction
 		    },
 		    {
 		    	'label' : 'Export to HTML',
@@ -143,6 +123,33 @@ function ($, celltoolbar){
 
 	var hideOutputCallback = ctb.utils.checkbox_ui_generator('Hide Outputs ', hideOutputSetter,	hideOutputGetter);
 
+	var toggleCodeFunction = function(save=true) { // toggling visibility is adding display: block to the element. Causing celltoolbar = None not work.
+		console.log("toggling hide code");
+        $('.input').toggle(); 
+        $('.prompt').toggle(); 
+        var ctb = $('.ctb_hideshow');
+        if(ctb.hasClass('ctb_show')) {
+        	ctb.removeClass('ctb_show');
+        	if (save)
+        		Jupyter.notebook.metadata.hideCode=true;
+        } else {
+        	ctb.addClass('ctb_show');
+        	if (save)
+        		Jupyter.notebook.metadata.hideCode=false;
+        }
+
+        var ctb = $('.celltoolbar');
+        if(ctb.hasClass('invisible')){
+        	console.log('visible');
+        	ctb.removeClass('invisible');
+        } else {
+        	console.log('invisible');
+        	ctb.addClass('invisible');
+        }
+        // $('.celltoolbar').toggle();
+        $('.selected').removeClass('selected').addClass('unselected');
+      }; 
+
 	function setup(){
 		ctb.register_callback('hide_code.hideCode', hideCodeCallback);
         ctb.register_callback('hide_code.hidePrompts', hidePromptCallback);
@@ -154,6 +161,13 @@ function ($, celltoolbar){
         	toggleHideCode(cell);
         	toggleHideOutput(cell);
         });
+        if (Jupyter.notebook.metadata.hideCode){
+			setTimeout(function(){
+				if (Jupyter.notebook.metadata.hideCode){
+					toggleCodeFunction(false)
+				}
+			},2000);
+		}
 	}
 	
 	setup();
